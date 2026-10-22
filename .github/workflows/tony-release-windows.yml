@@ -1,0 +1,93 @@
+# Tony release helper: build the Windows portable zip for a published release
+# and attach it to that release. This replaces hand cross-building the zip on
+# the maintainer's VM (those builds kept dying to OOM / VM restarts); a real
+# Windows runner builds the native .exe instead.
+#
+# Triggers:
+#   - automatically when a release is published;
+#   - manually (Actions -> "Release Windows portable" -> Run workflow) with a
+#     tag, to backfill the zip for an older release.
+#
+# The zip keeps the established portable layout: one top folder "TS Word"
+# holding wordcraft.exe + HUONG-DAN.txt. HUONG-DAN.txt is generated below
+# (there is no canonical Windows copy in the tree — packaging/macos/
+# HUONG-DAN.md is the macOS text); it is the stable how-to-run text without
+# the per-release "what's new" notes, which live in the release notes.
+# The binary is unsigned, as with the hand-built zips (SmartScreen note is
+# in HUONG-DAN.txt).
+
+name: Release Windows portable
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to build the Windows zip for (e.g. v1.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Resolve release tag
+        id: tag
+        shell: pwsh
+        run: |
+          "tag=${{ github.event.release.tag_name || inputs.tag }}" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build the app (release)
+        run: cargo build --release --locked -p wordcraft
+
+      - name: Assemble the portable folder and zip it
+        id: pkg
+        shell: pwsh
+        env:
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          $version = $env:TAG -replace '^v', ''
+          $folder = "TS Word"
+          $stage = Join-Path $env:GITHUB_WORKSPACE "dist/windows/$folder"
+          New-Item -ItemType Directory -Force $stage | Out-Null
+          Copy-Item "target/release/wordcraft.exe" $stage
+          $guide = @'
+          TS Word __VERSION__ (Windows, portable)
+          ==================================
+
+          Ban build ca nhan cua Tony, dua tren WordCraft (MIT/Apache-2.0).
+
+          CACH DUNG:
+          1. Giai nen zip, chay thang wordcraft.exe trong thu muc "TS Word" — khong can cai dat.
+          2. Settings cua app luu o thu muc cau hinh mac dinh cua Windows (%APPDATA%), giong ban cai dat.
+
+          CAP NHAT:
+          - App tu kiem tra ban moi: Help > Check for Updates. Tren Windows, app chi bao
+            ban moi va mo trang release tren GitHub de tai ban moi — tu cai dat chi co
+            tren macOS.
+          - Menu Help: About / Check for Updates / System Info / Keyboard Shortcuts.
+
+          Luu y: ban Windows chua duoc ky so (khong co chung chi) — Windows SmartScreen
+          co the canh bao lan chay dau, chon "More info" > "Run anyway".
+          '@
+          $guide = $guide -replace '__VERSION__', $version
+          Set-Content -Path (Join-Path $stage "HUONG-DAN.txt") -Value $guide -Encoding utf8BOM
+          $asset = "tsw-by-tonynehihi-$version-windows.zip"
+          Compress-Archive -Path "dist/windows/$folder" -DestinationPath "dist/windows/$asset"
+          "asset=dist/windows/$asset" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Attach the Windows zip to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ steps.tag.outputs.tag }}" "${{ steps.pkg.outputs.asset }}" --clobber

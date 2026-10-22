@@ -1,0 +1,47 @@
+# Tony release helper: build the macOS DMG for a published release and attach
+# it to that release. Releases are published from the maintainer's machine
+# (source archive + Windows zip); this workflow produces the one artifact that
+# needs a Mac — the Apple Silicon DMG — so nobody has to build it by hand.
+#
+# Triggers:
+#   - automatically when a release is published;
+#   - manually (Actions -> "Release DMG (macOS)" -> Run workflow) with a tag,
+#     to backfill the DMG for an older release.
+
+name: Release DMG (macOS)
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag to build the DMG for (e.g. v1.1.0)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  dmg:
+    runs-on: macos-14
+    steps:
+      - name: Resolve release tag
+        id: tag
+        run: echo "tag=${{ github.event.release.tag_name || inputs.tag }}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.tag.outputs.tag }}
+
+      - name: Install Rust (stable)
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build the app and package the DMG
+        run: packaging/macos/package.sh --arch aarch64
+
+      - name: Attach the DMG to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "${{ steps.tag.outputs.tag }}" dist/release/*-macos-aarch64.dmg --clobber
