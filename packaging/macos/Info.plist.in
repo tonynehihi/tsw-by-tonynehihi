@@ -7,9 +7,9 @@
   <key>CFBundleDevelopmentRegion</key>
   <string>en</string>
   <key>CFBundleDisplayName</key>
-  <string>TsW</string>
+  <string>TS Word</string>
   <key>CFBundleName</key>
-  <string>TsW</string>
+  <string>TS Word</string>
   <key>CFBundleExecutable</key>
   <string>TsW</string>
   <key>CFBundleIdentifier</key>

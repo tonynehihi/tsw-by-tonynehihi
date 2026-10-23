@@ -2,7 +2,7 @@
 
 Bản build cá nhân của Tony, dựa trên WordCraft (MIT/Apache-2.0) của storytold, đã đổi:
 
-- Tên app là **TS Word** — ngoài Spotlight / Finder / Dock là **TsW.app**, icon **W xanh Word** theo ngôn ngữ thiết kế của bộ Tony Suite.
+- Tên app là **TS Word** — ngoài Spotlight / Finder / Dock là **TS Word.app**, icon **W xanh Word** theo ngôn ngữ thiết kế của bộ Tony Suite.
 - **Tự kiểm tra & cài bản mới ngay trong app** (tab Help → Check for Updates), kèm changelog hiện trong app.
 - **Menu Help gọn + bỏ hết link về bản gốc**: không còn nút Discord ở thanh tiêu đề, không còn link website / Discord / GitHub của upstream ở màn hình bắt đầu hay trong About.
 
@@ -23,7 +23,7 @@ Thư mục settings và dữ liệu vẫn giữ tên WordCraft như bản gốc 
 # Xóa bản build cũ
 rm -rf target/
 # Xóa app đã cài (nếu đã kéo vào Applications)
-rm -rf "/Applications/TsW.app"
+rm -rf "/Applications/TS Word.app"
 rm -rf "/Applications/WordCraft.app"
 ```
 
@@ -61,7 +61,7 @@ cargo build --release -p wordcraft
 packaging/macos/package.sh --arch aarch64
 ```
 (Máy Intel cũ: `--arch x86_64`.)
-Xong mở file `.dmg` trong `dist/release/`, kéo **TsW.app** vào Applications.
+Xong mở file `.dmg` trong `dist/release/`, kéo **TS Word.app** vào Applications.
 
 Từ các bản sau, không cần lặp lại các bước này: mở app và dùng **Check for Updates**.
 
@@ -76,7 +76,7 @@ Chuột phải vào app → chọn **Open** → bấm **Open** trong hộp tho�
 1. Mở Terminal.
 2. Gõ đúng dòng này rồi Enter:
 ```bash
-xattr -cr "/Applications/TsW.app"
+xattr -cr "/Applications/TS Word.app"
 ```
 3. Mở app lại bình thường.
 

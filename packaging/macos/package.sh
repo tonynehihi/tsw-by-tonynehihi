@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Build, sign and (optionally) notarize the macOS release artifacts:
 #
-#   $DIST/tsw-by-tonynehihi-<version>-macos-<arch>.dmg  TsW.app on a drag-to-Applications DMG
+#   $DIST/tsw-by-tonynehihi-<version>-macos-<arch>.dmg  TS Word.app on a drag-to-Applications DMG
 #   $DIST/wordcraft-cli-<version>-macos-<arch>.zip      the headless CLI
 #
 # Usage: packaging/macos/package.sh [--arch universal|aarch64|x86_64] [--skip-build]
@@ -39,7 +39,7 @@ export MACOSX_DEPLOYMENT_TARGET=11.0
 IDENTITY="${MACOS_SIGN_IDENTITY:--}"
 SHORT_VERSION="${VERSION%%-*}"
 WORK="$CARGO_TARGET_DIR/macos-package"
-APP="$WORK/TsW.app"
+APP="$WORK/TS Word.app"
 DMG="$DIST/tsw-by-tonynehihi-$VERSION-macos-$ARCH.dmg"
 CLI_ZIP="$DIST/wordcraft-cli-$VERSION-macos-$ARCH.zip"
 
@@ -97,7 +97,7 @@ notarize() {
   fi
 }
 
-# ---- TsW.app ----------------------------------------------------------------------------------
+# ---- TS Word.app ------------------------------------------------------------------------------
 echo "==> assembling $APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 # Executable and icon carry the display name (CFBundleExecutable / CFBundleIconFile).
@@ -151,7 +151,7 @@ fi
 echo "==> building $DMG"
 STAGE="$WORK/dmg"
 mkdir -p "$STAGE"
-ditto "$APP" "$STAGE/TsW.app"
+ditto "$APP" "$STAGE/TS Word.app"
 ln -s /Applications "$STAGE/Applications"
 # Finder window layout: background, icon size and positions (packaging/macos/dmg/README.md).
 mkdir -p "$STAGE/.background"
@@ -191,21 +191,21 @@ verify_dmg_app() {
   local dmg="$1" mount="$WORK/dmg-check" copy="$WORK/dmg-check-copy" rc=0
   mkdir -p "$mount" "$copy"
   hdiutil_retry attach -readonly -nobrowse -noautoopen -mountpoint "$mount" "$dmg" >/dev/null
-  echo "==> strict signature check of TsW.app inside $(basename "$dmg")"
-  codesign --verify --deep --strict --verbose=2 "$mount/TsW.app" || rc=1
+  echo "==> strict signature check of TS Word.app inside $(basename "$dmg")"
+  codesign --verify --deep --strict --verbose=2 "$mount/TS Word.app" || rc=1
   if [ "$rc" = 0 ]; then
-    ditto "$mount/TsW.app" "$copy/TsW.app" || rc=1
+    ditto "$mount/TS Word.app" "$copy/TS Word.app" || rc=1
   fi
   if [ "$rc" = 0 ]; then
     echo "==> strict signature check of a ditto copy of it"
-    codesign --verify --deep --strict --verbose=2 "$copy/TsW.app" || rc=1
+    codesign --verify --deep --strict --verbose=2 "$copy/TS Word.app" || rc=1
   fi
   if [ "$rc" = 0 ] && [ "$NOTARIZE" = 1 ]; then
-    spctl --assess --type execute -vvv "$copy/TsW.app" || rc=1
+    spctl --assess --type execute -vvv "$copy/TS Word.app" || rc=1
   fi
   if [ "$rc" != 0 ]; then
-    echo "error: TsW.app in $(basename "$dmg") fails strict verification; extended attributes:" >&2
-    xattr -lr "$mount/TsW.app" >&2 || true
+    echo "error: TS Word.app in $(basename "$dmg") fails strict verification; extended attributes:" >&2
+    xattr -lr "$mount/TS Word.app" >&2 || true
   fi
   hdiutil_retry detach "$mount" >/dev/null || hdiutil detach "$mount" -force >/dev/null || rc=1
   rm -rf "$copy"

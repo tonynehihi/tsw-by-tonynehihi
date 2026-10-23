@@ -1,5 +1,11 @@
 # Changelog
 
+## TS Word 1.1.1
+
+- **RENAMED APP BUNDLE**: the macOS app bundle is now **TS Word.app** (it was TsW.app), so Spotlight finds the app when you search "Word". The bundle id, documents, settings and data folders are unchanged — everything keeps working exactly as before, and the built-in updater handles the rename by itself.
+
+— tonynehihi
+
 ## TS Word 1.1.0
 
 First release of TS Word, a personal build based on WordCraft 0.9.0 by storytold.
