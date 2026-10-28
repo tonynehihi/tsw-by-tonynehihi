@@ -41,7 +41,7 @@ jobs:
         run: |
           "tag=${{ github.event.release.tag_name || inputs.tag }}" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ steps.tag.outputs.tag }}
 
