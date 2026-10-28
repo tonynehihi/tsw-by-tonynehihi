@@ -1,5 +1,17 @@
 # Changelog
 
+## TS Word 1.2.0
+
+- **SYNCS UPSTREAM WORDCRAFT v0.11.0** into TS Word, keeping the TS Word changes from 1.1.1: the **TS Word.app** bundle, the in-app updater pointed at this repo, and the internal Help with no upstream links.
+- **FIELDS WITH SWITCHES** — fields now honour their switches.
+- **AUTOFORMAT BOLD/ITALIC** — automatic bold and italic formatting.
+- **CONVERT TO TEXT** — convert content to plain text.
+- **ENCRYPTED DOCX SECURITY** — security work for encrypted DOCX files.
+- Interface translations now come from upstream's shared catalog; fork-specific strings fall back to English in non-English locales until a fork overlay lands.
+- Many smaller fixes across the app from the upstream wave.
+
+— tonynehihi
+
 ## TS Word 1.1.1
 
 - **RENAMED APP BUNDLE**: the macOS app bundle is now **TS Word.app** (it was TsW.app), so Spotlight finds the app when you search "Word". The bundle id, documents, settings and data folders are unchanged — everything keeps working exactly as before, and the built-in updater handles the rename by itself.
